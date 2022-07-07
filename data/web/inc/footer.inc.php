@@ -44,12 +44,16 @@ if (isset($pending_tfa_authmechs['u2f'])) {
   $pending_tfa_authmechs['u2f'] = true;
 }
 
+$mailcow_info = array(
+  'version_tag' => $GLOBALS['MAILCOW_GIT_VERSION'],
+  'git_project_url' => $GLOBALS['MAILCOW_GIT_URL'],
+  'git_commit' => $GLOBALS['MAILCOW_GIT_COMMIT'],
+  'mailcow_build' => $GLOBALS['MAILCOW_BUILD']
+);
+
 // globals
 $globalVariables = [
-  'mailcow_info' => array(
-    'version_tag' => $GLOBALS['MAILCOW_GIT_VERSION'],
-    'git_project_url' => $GLOBALS['MAILCOW_GIT_URL']
-  ),
+  'mailcow_info' => $mailcow_info,
   'js_path' => '/cache/'.basename($JSPath),
   'pending_tfa_methods' => @$_SESSION['pending_tfa_methods'],
   'pending_tfa_authmechs' => $pending_tfa_authmechs,

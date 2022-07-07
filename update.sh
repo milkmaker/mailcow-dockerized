@@ -59,6 +59,7 @@ done
 export LC_ALL=C
 DATE=$(date +%Y-%m-%d_%H_%M_%S)
 BRANCH=$(cd ${SCRIPT_DIR}; git rev-parse --abbrev-ref HEAD)
+BUILD=STABLE
 
 check_online_status() {
   CHECK_ONLINE_IPS=(1.1.1.1 9.9.9.9 8.8.8.8)
@@ -295,6 +296,14 @@ while (($#)); do
         exit 3
       fi
     ;;
+    --stable|-s)
+      echo "Using master Branch from GitHub (Stable Releases)..."
+      BUILD=STABLE
+    ;;
+    --nightly|-n)
+      echo "Using staging Branch from GitHub (Testing/Pending Updates, updated frequently) !! NOT FOR PRODUCTION ENVIRONMENTS !!..."
+      BUILD=NIGHTLY
+    ;;    
     --ours)
       MERGE_STRATEGY=ours
     ;;
@@ -322,9 +331,11 @@ while (($#)); do
       SKIP_PING_CHECK=y
     ;;
     --help|-h)
-    echo './update.sh [-c|--check, --ours, --gc, --no-update-compose, --prefetch, --skip-start, --skip-ping-check, -f|--force, -h|--help]
+    echo './update.sh [-c|--check, -s|--stable, -n|--nightly, --ours, --gc, --no-update-compose, --prefetch, --skip-start, --skip-ping-check, -f|--force, -h|--help]
 
   -c|--check           -   Check for updates and exit (exit codes => 0: update available, 3: no updates)
+  -s|--stable          -   Use the master Branch from GitHub as source code origin (Official stable releases)
+  -n|--nightly         -   Use the staging Branch from GitHub as source code origin (Testing/Pending Updates, updated frequently) !! NOT FOR PRODUCTION ENVIRONMENTS !!
   --ours               -   Use merge strategy option "ours" to solve conflicts in favor of non-mailcow code (local changes over remote changes), not recommended!
   --gc                 -   Run garbage collector to delete old image tags
   --no-update-compose  -   Do not update docker-compose  
@@ -630,6 +641,43 @@ else
    fi
 fi
 
+if $BUILD == stable; then
+  BRANCH = master
+  if [[ ! $(git rev-parse --abbrev-ref HEAD) == master ]]; then
+    echo -e "\e[31mYou are using nightly builds of mailcow!\e[0m"
+    echo -e "\e[31mThis means that your mailcow installation is ahead of the stable versions.\e[0m"
+    echo -e "\e[31mIf you downgrade your mailcow now without checking the ahead commit number on GitHub you´ll probably will break things.\e[0m"
+    sleep 2
+    read -r -p "Do you want to make a backup first before you downgrade your mailcow installation to the stable updates? [y/N] " response-backup
+    if [[ ! "${response-backup}" =~ ^([yY][eE][sS]|[yY])+$ ]]; then
+      echo -e "\e[33mAlright continuing with the downgrade process. All current staged commits will be stashed and the branch will be switched to $BRANCH\e[0m"
+      git stash && git checkout -f $BRANCH
+    else
+      echo -e "\e[32mPlease create the backup manually with the backup_and_restore script located in the helper-scripts folder in youe mailcow root directory and rerun the update.sh Script witht the --stable parameter again to continue the downgrade process!\e[0m"
+      echo -e "\e[32mExiting...\e[0m"
+      exit 0
+    fi
+  fi  
+elif $BUILD == nightly; then
+  BRANCH = staging
+  if [[ ! $(git rev-parse --abbrev-ref HEAD) == staging ]]; then
+    echo -e "\e[31mYou are using the stable build of mailcow!\e[0m"
+    echo -e "\e[31mThis means that your mailcow installation is using the releases that are suitable for production systems.\e[0m"
+    echo -e "\e[31mIf you now upgrade your mailcow to the nightly builds you may experience problems or data loss, but usually this process runs smoothly and your data is not affected.\e[0m"
+    echo -e "\e[33mWe highly advise you to do a Backup of your current running mailcow installation.\e[0m"
+    sleep 2
+    read -r -p "Do you want to make a backup first before you upgrade your mailcow installation to the nightly updates? [y/N] " response-backup
+    if [[ ! "${response-backup}" =~ ^([yY][eE][sS]|[yY])+$ ]]; then
+      echo -e "\e[33mAlright continuing with the upgrade process. All current staged commits will be stashed and the branch will be switched to $BRANCH\e[0m"
+      git stash && git checkout -f $BRANCH
+    else
+      echo -e "\e[32mPlease create the backup manually with the backup_and_restore script located in the helper-scripts folder in your mailcow root directory and rerun the update.sh Script witht the --nightly parameter again to continue the upgrade process!\e[0m"
+      echo -e "\e[32mExiting...\e[0m"
+      exit 0
+    fi
+  fi
+fi 
+
 echo -e "\e[32mChecking for newer update script...\e[0m"
 SHA1_1=$(sha1sum update.sh)
 git fetch origin #${BRANCH}
@@ -774,16 +822,29 @@ if [ -f "data/conf/rspamd/local.d/metrics.conf" ]; then
 fi
 
 # Set app_info.inc.php
-mailcow_git_version=$(git describe --tags `git rev-list --tags --max-count=1`)
+if BUILD = stable; then
+  mailcow_git_version=$(git describe --tags `git rev-list --tags --max-count=1`)
+elif BUILD = nightly; then
+  mailcow_git_version=$(git rev-parse --short HEAD)
+else
+  mailcow_git_version=$(git describe --tags `git rev-list --tags --max-count=1`)
+fi
+
+mailcow_git_commit=$(git rev-parse HEAD)
+
 if [ $? -eq 0 ]; then
   echo '<?php' > data/web/inc/app_info.inc.php
   echo '  $MAILCOW_GIT_VERSION="'$mailcow_git_version'";' >> data/web/inc/app_info.inc.php
   echo '  $MAILCOW_GIT_URL="https://github.com/mailcow/mailcow-dockerized";' >> data/web/inc/app_info.inc.php
+  echo '  $MAILCOW_GIT_COMMIT="'$mailcow_git_commit'";' >> data/web/inc/app_info.inc.php
+  echo '  $MAILCOW_BUILD="'$BUILD'";' >> data/web/inc/app_info.inc.php
   echo '?>' >> data/web/inc/app_info.inc.php
 else
   echo '<?php' > data/web/inc/app_info.inc.php
   echo '  $MAILCOW_GIT_VERSION="";' >> data/web/inc/app_info.inc.php
   echo '  $MAILCOW_GIT_URL="";' >> data/web/inc/app_info.inc.php
+  echo '  $MAILCOW_GIT_COMMIT="";' >> data/web/inc/app_info.inc.php
+  echo '  $MAILCOW_BUILD="";' >> data/web/inc/app_info.inc.php
   echo '?>' >> data/web/inc/app_info.inc.php
   echo -e "\e[33mCannot determine current git repository version...\e[0m"
 fi
