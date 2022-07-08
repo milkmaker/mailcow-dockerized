@@ -648,7 +648,7 @@ if [[( ${BUILD} == "STABLE")]]; then
     echo -e "\e[31mThis means that your mailcow installation is ahead of the stable versions.\e[0m"
     echo -e "\e[31mIf you downgrade your mailcow now without checking the ahead commit number on GitHub you´ll probably will break things.\e[0m"
     sleep 2
-    read -r -p "Do you want to make a backup first before you downgrade your mailcow installation to the stable updates? [y/N] " response-backup
+    read -r -p "Do you want to make a backup first before you downgrade your mailcow installation to the stable updates? [y/N] " responsebackup
     if [[ ! "${response-backup}" =~ ^([yY][eE][sS]|[yY])+$ ]]; then
       echo -e "\e[33mAlright continuing with the downgrade process. All current staged commits will be stashed and the branch will be switched to $BRANCH\e[0m"
       git stash && git checkout -f $BRANCH
@@ -666,7 +666,7 @@ elif [[(${BUILD} == "NIGHTLY")]]; then
     echo -e "\e[31mIf you now upgrade your mailcow to the nightly builds you may experience problems or data loss, but usually this process runs smoothly and your data is not affected.\e[0m"
     echo -e "\e[33mWe highly advise you to do a Backup of your current running mailcow installation.\e[0m"
     sleep 2
-    read -r -p "Do you want to make a backup first before you upgrade your mailcow installation to the nightly updates? [y/N] " response-backup
+    read -r -p "Do you want to make a backup first before you upgrade your mailcow installation to the nightly updates? [y/N] " responsebackup
     if [[ ! "${response-backup}" =~ ^([yY][eE][sS]|[yY])+$ ]]; then
       echo -e "\e[33mAlright continuing with the upgrade process. All current staged commits will be stashed and the branch will be switched to $BRANCH\e[0m"
       git stash && git checkout -f $BRANCH
