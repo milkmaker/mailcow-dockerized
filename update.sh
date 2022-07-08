@@ -647,14 +647,23 @@ if [[( ${BUILD} == "STABLE")]]; then
     echo -e "\e[31mYou are using nightly builds of mailcow!\e[0m"
     echo -e "\e[31mThis means that your mailcow installation is ahead of the stable versions.\e[0m"
     echo -e "\e[31mIf you downgrade your mailcow now without checking the ahead commit number on GitHub you´ll probably will break things.\e[0m"
+    echo
     sleep 2
-    read -r -p "Do you want to make a backup first before you downgrade your mailcow installation to the stable updates? [y/N] " responsebackup
-    if [[ ! "${response-backup}" =~ ^([yY][eE][sS]|[yY])+$ ]]; then
+    echo -e "\e[31mIf the staging branch is up to date with the master branch you can easily downgrade back to stable versions.\e[0m"
+    read -r -p "Do you want to make a backup first before you downgrade your mailcow installation to the stable updates? [Y/n] " responsebackup
+    if [[ ! "${responsebackup}" =~ ^([yY][eE][sS]|[yY])+$ ]]; then
       echo -e "\e[33mAlright continuing with the downgrade process. All current staged commits will be stashed and the branch will be switched to $BRANCH\e[0m"
       git stash && git checkout -f $BRANCH
     else
-      echo -e "\e[32mPlease create the backup manually with the backup_and_restore script located in the helper-scripts folder in youe mailcow root directory and rerun the update.sh Script witht the --stable parameter again to continue the downgrade process!\e[0m"
-      echo -e "\e[32mExiting...\e[0m"
+      echo -e "\e[33mPlease create the backup manually with the backup_and_restore script located in the helper-scripts folder in your mailcow root directory.\e[0m"
+      echo -e "\e[33mBackup your mailcow root directory as well since the downgrade process may override custom configs of your stack.\e[0m"
+      echo -e "\e[33mRerun the update.sh Script with the --stable parameter afterwards to continue the downgrade process!\e[0m"
+      echo
+      sleep 2
+      echo -e "\e[31mPlease backup your databases (mysql and redis) in any case, because database changes might be included in the nightly build which do not (or not yet) exist in the stable builds. \e[0m"
+      sleep 1
+      echo
+      echo -e "Exiting..."
       exit 0
     fi
   fi  
@@ -666,13 +675,20 @@ elif [[(${BUILD} == "NIGHTLY")]]; then
     echo -e "\e[31mIf you now upgrade your mailcow to the nightly builds you may experience problems or data loss, but usually this process runs smoothly and your data is not affected.\e[0m"
     echo -e "\e[33mWe highly advise you to do a Backup of your current running mailcow installation.\e[0m"
     sleep 2
-    read -r -p "Do you want to make a backup first before you upgrade your mailcow installation to the nightly updates? [y/N] " responsebackup
-    if [[ ! "${response-backup}" =~ ^([yY][eE][sS]|[yY])+$ ]]; then
+    read -r -p "Do you want to make a backup first before you upgrade your mailcow installation to the nightly updates? [Y/n] " responsebackup
+    if [[ ! "${responsebackup}" =~ ^([yY][eE][sS]|[yY])+$ ]]; then
       echo -e "\e[33mAlright continuing with the upgrade process. All current staged commits will be stashed and the branch will be switched to $BRANCH\e[0m"
       git stash && git checkout -f $BRANCH
     else
-      echo -e "\e[32mPlease create the backup manually with the backup_and_restore script located in the helper-scripts folder in your mailcow root directory and rerun the update.sh Script witht the --nightly parameter again to continue the upgrade process!\e[0m"
-      echo -e "\e[32mExiting...\e[0m"
+      echo -e "\e[33mPlease create the backup manually with the backup_and_restore script located in the helper-scripts folder in your mailcow root directory.\e[0m"
+      echo -e "\e[33mBackup your mailcow root directory as well since the upgrade process may override custom configs of your stack.\e[0m"
+      echo -e "\e[33mRerun the update.sh Script with the --nightly parameter afterwards to continue the upgrade process!\e[0m"
+      echo
+      sleep 2
+      echo -e "\e[31mPlease backup your databases (mysql and redis) in any case.\e[0m"
+      sleep 1
+      echo
+      echo -e "Exiting..."
       exit 0
     fi
   fi
