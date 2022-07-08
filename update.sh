@@ -643,7 +643,7 @@ fi
 
 if [[( ${BUILD} == "STABLE")]]; then
   BRANCH=master
-  if [[ ! $(git rev-parse --abbrev-ref HEAD) == "master" ]]; then
+  if [[ $(git rev-parse --abbrev-ref HEAD) != "master" ]]; then
     echo -e "\e[31mYou are using nightly builds of mailcow!\e[0m"
     echo -e "\e[31mThis means that your mailcow installation is ahead of the stable versions.\e[0m"
     echo -e "\e[31mIf you downgrade your mailcow now without checking the ahead commit number on GitHub you´ll probably will break things.\e[0m"
@@ -666,10 +666,12 @@ if [[( ${BUILD} == "STABLE")]]; then
       echo -e "Exiting..."
       exit 0
     fi
+  elif [[ $(git rev-parse --abbrev-ref HEAD) == "master" ]]; then
+    echo -e "\e[31mYou are using the stable builds of mailcow builds of mailcow!\e[0m"
   fi  
 elif [[(${BUILD} == "NIGHTLY")]]; then
   BRANCH=staging
-  if [[ $(git rev-parse --abbrev-ref HEAD) == "master" ]]; then
+  if [[ $(git rev-parse --abbrev-ref HEAD) != "staging" ]]; then
     echo -e "\e[31mYou are using the stable build of mailcow!\e[0m"
     echo -e "\e[31mThis means that your mailcow installation is using the releases that are suitable for production systems.\e[0m"
     echo -e "\e[31mIf you now upgrade your mailcow to the nightly builds you may experience problems or data loss, but usually this process runs smoothly and your data is not affected.\e[0m"
@@ -691,19 +693,21 @@ elif [[(${BUILD} == "NIGHTLY")]]; then
       echo -e "Exiting..."
       exit 0
     fi
+  elif [[ $(git rev-parse --abbrev-ref HEAD) == "staging" ]]; then
+    echo -e "\e[31mYou are using nightly builds of mailcow!\e[0m"
   fi
 fi 
 
-echo -e "\e[32mChecking for newer update script...\e[0m"
-SHA1_1=$(sha1sum update.sh)
-git fetch origin #${BRANCH}
-git checkout origin/${BRANCH} update.sh
-SHA1_2=$(sha1sum update.sh)
-if [[ ${SHA1_1} != ${SHA1_2} ]]; then
-  echo "update.sh changed, please run this script again, exiting."
-  chmod +x update.sh
-  exit 2
-fi
+# echo -e "\e[32mChecking for newer update script...\e[0m"
+# SHA1_1=$(sha1sum update.sh)
+# git fetch origin #${BRANCH}
+# git checkout origin/${BRANCH} update.sh
+# SHA1_2=$(sha1sum update.sh)
+# if [[ ${SHA1_1} != ${SHA1_2} ]]; then
+#   echo "update.sh changed, please run this script again, exiting."
+#   chmod +x update.sh
+#   exit 2
+# fi
 
 if [[ -f mailcow.conf ]]; then
   source mailcow.conf
