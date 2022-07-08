@@ -48,6 +48,7 @@ $mailcow_info = array(
   'version_tag' => $GLOBALS['MAILCOW_GIT_VERSION'],
   'git_project_url' => $GLOBALS['MAILCOW_GIT_URL'],
   'git_commit' => $GLOBALS['MAILCOW_GIT_COMMIT'],
+  'git_commit_date' => $GLOBALS['MAILCOW_GIT_COMMIT_DATE'],
   'mailcow_build' => $GLOBALS['MAILCOW_BUILD']
 );
 
