@@ -4,6 +4,7 @@
 !/**/.gitkeep
 *.iml
 .idea
+.mailcow_build
 .vscode/*
 data/assets/ssl-example/*
 data/assets/ssl/*
