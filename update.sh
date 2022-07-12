@@ -298,11 +298,13 @@ while (($#)); do
     ;;
     --stable|-s)
       echo "Using master Branch from GitHub (Stable Releases)..."
-      BUILD=STABLE
+      echo stable > .mcbuild
+      BUILD=$(cat .mcbuild)
     ;;
     --nightly|-n)
-      echo "Using staging Branch from GitHub (Testing/Pending Updates, updated frequently) !! NOT FOR PRODUCTION ENVIRONMENTS !!..."
-      BUILD=NIGHTLY
+      echo "Using nightly Branch from GitHub (Testing/Pending Updates, updated frequently) !! NOT FOR PRODUCTION ENVIRONMENTS !!..."
+      echo nightly > .mcbuild
+      BUILD=$(cat .mcbuild)
     ;;    
     --ours)
       MERGE_STRATEGY=ours
@@ -335,7 +337,7 @@ while (($#)); do
 
   -c|--check           -   Check for updates and exit (exit codes => 0: update available, 3: no updates)
   -s|--stable          -   Use the master Branch from GitHub as source code origin (Official stable releases)
-  -n|--nightly         -   Use the staging Branch from GitHub as source code origin (Testing/Pending Updates, updated frequently) !! NOT FOR PRODUCTION ENVIRONMENTS !!
+  -n|--nightly         -   Use the nightly Branch from GitHub as source code origin (Testing/Pending Updates, updated frequently) !! NOT FOR PRODUCTION ENVIRONMENTS !!
   --ours               -   Use merge strategy option "ours" to solve conflicts in favor of non-mailcow code (local changes over remote changes), not recommended!
   --gc                 -   Run garbage collector to delete old image tags
   --no-update-compose  -   Do not update docker-compose  
@@ -641,7 +643,7 @@ else
    fi
 fi
 
-if [[( ${BUILD} == "STABLE")]]; then
+if [[( ${BUILD} == "stable")]]; then
   BRANCH=master
   if [[ $(git rev-parse --abbrev-ref HEAD) != "master" ]]; then
     echo -e "\e[31mYou are currently using nightly builds of mailcow!\e[0m"
@@ -649,7 +651,7 @@ if [[( ${BUILD} == "STABLE")]]; then
     echo
     echo -e "\e[31mIf you downgrade your mailcow now without checking the ahead commit number on GitHub you´ll probably will break things.\e[0m"
     sleep 2
-    echo -e "\e[31mIf the staging branch is up to date with the master branch you can easily downgrade back to stable versions.\e[0m"
+    echo -e "\e[31mIf the nightly branch is up to date with the master branch you can easily downgrade back to stable versions.\e[0m"
     echo -e "\e[33mIf you continue now you´ll switch the builds from nightly to stable! If you want to update your nightly builds simply rerun the script with the --nightly parameter again.\e[0m"
     read -r -p "Do you want to make a backup first before you downgrade your mailcow installation to the stable updates? [Y/n] " responsebackup
     if [[ ! "${responsebackup}" =~ ^([yY][eE][sS]|[yY])+$ ]]; then
@@ -670,9 +672,9 @@ if [[( ${BUILD} == "STABLE")]]; then
   elif [[ $(git rev-parse --abbrev-ref HEAD) == "master" ]]; then
     echo -e "\e[31mYou are using the stable builds of mailcow builds of mailcow!\e[0m"
   fi  
-elif [[(${BUILD} == "NIGHTLY")]]; then
-  BRANCH=staging
-  if [[ $(git rev-parse --abbrev-ref HEAD) != "staging" ]]; then
+elif [[(${BUILD} == "nightly")]]; then
+  BRANCH=nightly
+  if [[ $(git rev-parse --abbrev-ref HEAD) != "nightly" ]]; then
     echo -e "\e[31mYou are using the stable build of mailcow!\e[0m"
     echo -e "\e[31mThis means that your mailcow installation is using the releases that are suitable for production systems.\e[0m"
     echo -e "\e[31mIf you now upgrade your mailcow to the nightly builds you may experience problems or data loss, but usually this process runs smoothly and your data is not affected.\e[0m"
@@ -696,7 +698,7 @@ elif [[(${BUILD} == "NIGHTLY")]]; then
       echo -e "Exiting..."
       exit 0
     fi
-  elif [[ $(git rev-parse --abbrev-ref HEAD) == "staging" ]]; then
+  elif [[ $(git rev-parse --abbrev-ref HEAD) == "nightly" ]]; then
     echo -e "\e[31mYou are using nightly builds of mailcow!\e[0m"
   fi
 fi 
