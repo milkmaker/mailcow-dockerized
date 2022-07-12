@@ -59,7 +59,15 @@ done
 export LC_ALL=C
 DATE=$(date +%Y-%m-%d_%H_%M_%S)
 BRANCH=$(cd ${SCRIPT_DIR}; git rev-parse --abbrev-ref HEAD)
-BUILD=STABLE
+
+### Check if .mcbuild is there and is not empty or invalid
+if ! [[ -f .mcbuild ]]; then
+  echo stable > .mcbuild
+elif ! cat .mcbuild | grep -w "stable" > /dev/null 2>&1 && ! cat .mcbuild | grep -w "nightly" > /dev/null 2>&1; then
+  echo stable > .mcbuild
+fi
+
+BUILD=$(cat .mcbuild)
 
 check_online_status() {
   CHECK_ONLINE_IPS=(1.1.1.1 9.9.9.9 8.8.8.8)
