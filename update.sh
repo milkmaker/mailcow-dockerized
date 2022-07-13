@@ -653,7 +653,7 @@ fi
 
 if [[( ${BUILD} == "stable")]]; then
   BRANCH=master
-  if [[ $(git rev-parse --abbrev-ref HEAD) != "master" ]]; then
+  if [[ $(git rev-parse --abbrev-ref HEAD) != "master" && $(git rev-parse --abbrev-ref HEAD) == "nightly" ]]; then
     echo -e "\e[31mYou are currently using nightly builds of mailcow!\e[0m"
     echo -e "\e[31mThis means that your mailcow installation is ahead of the stable versions.\e[0m"
     echo
@@ -678,12 +678,12 @@ if [[( ${BUILD} == "stable")]]; then
       exit 0
     fi
   elif [[ $(git rev-parse --abbrev-ref HEAD) == "master" ]]; then
-    echo -e "\e[31mYou are using the stable builds of mailcow builds of mailcow!\e[0m"
+    echo -e "\e[32mYou are using the stable builds of mailcow builds of mailcow!\e[0m"
   fi  
 elif [[(${BUILD} == "nightly")]]; then
   BRANCH=nightly
-  if [[ $(git rev-parse --abbrev-ref HEAD) != "nightly" ]]; then
-    echo -e "\e[31mYou are using the stable build of mailcow!\e[0m"
+  if [[ $(git rev-parse --abbrev-ref HEAD) != "nightly" && $(git rev-parse --abbrev-ref HEAD) == "master" ]]; then
+    echo -e "\e[31mYou are currently using the stable build of mailcow!\e[0m"
     echo -e "\e[31mThis means that your mailcow installation is using the releases that are suitable for production systems.\e[0m"
     echo -e "\e[31mIf you now upgrade your mailcow to the nightly builds you may experience problems or data loss, but usually this process runs smoothly and your data is not affected.\e[0m"
     echo -e "\e[33mWe highly advise you to do a Backup of your current running mailcow installation.\e[0m"
@@ -709,6 +709,11 @@ elif [[(${BUILD} == "nightly")]]; then
   elif [[ $(git rev-parse --abbrev-ref HEAD) == "nightly" ]]; then
     echo -e "\e[31mYou are using nightly builds of mailcow!\e[0m"
   fi
+else
+  BRANCH=$(git rev-parse --abbrev-ref HEAD)
+  echo -e "\e[31mUnsafe Branch detected...\e[0m"
+  echo -e "\e[31mPlease consider switching to the stable or nightly branches to ensure that you receive updates.\e[0m"
+  echo -e "\e[31mTrying to get updates of your branch: $BRANCH\e[0m"
 fi 
 
 echo -e "\e[32mChecking for newer update script...\e[0m"
