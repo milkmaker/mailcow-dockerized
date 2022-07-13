@@ -679,6 +679,11 @@ if [[( ${BUILD} == "stable")]]; then
     fi
   elif [[ $(git rev-parse --abbrev-ref HEAD) == "master" ]]; then
     echo -e "\e[32mYou are using the stable builds of mailcow builds of mailcow!\e[0m"
+  else
+    BRANCH=$(git rev-parse --abbrev-ref HEAD)
+    echo -e "\e[31mUnsafe Branch detected...\e[0m"
+    echo -e "\e[31mPlease consider switching to the stable or nightly branches to ensure that you receive updates.\e[0m"
+    echo -e "\e[31mTrying to get updates of your branch: $BRANCH\e[0m"
   fi  
 elif [[(${BUILD} == "nightly")]]; then
   BRANCH=nightly
@@ -708,12 +713,12 @@ elif [[(${BUILD} == "nightly")]]; then
     fi
   elif [[ $(git rev-parse --abbrev-ref HEAD) == "nightly" ]]; then
     echo -e "\e[31mYou are using nightly builds of mailcow!\e[0m"
+  else
+    BRANCH=$(git rev-parse --abbrev-ref HEAD)
+    echo -e "\e[31mUnsafe Branch detected...\e[0m"
+    echo -e "\e[31mPlease consider switching to the stable or nightly branches to ensure that you receive updates.\e[0m"
+    echo -e "\e[31mTrying to get updates of your branch: $BRANCH\e[0m"
   fi
-else
-  BRANCH=$(git rev-parse --abbrev-ref HEAD)
-  echo -e "\e[31mUnsafe Branch detected...\e[0m"
-  echo -e "\e[31mPlease consider switching to the stable or nightly branches to ensure that you receive updates.\e[0m"
-  echo -e "\e[31mTrying to get updates of your branch: $BRANCH\e[0m"
 fi 
 
 echo -e "\e[32mChecking for newer update script...\e[0m"
