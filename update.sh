@@ -666,12 +666,10 @@ if [[( ${BUILD} == "stable")]]; then
       echo -e "\e[33mIf you continue now you´ll switch the builds from nightly to stable! If you want to update your nightly builds simply rerun the script with the --nightly parameter again.\e[0m"
     else
       echo -e "\e[31mUnsafe Branch detected...\e[0m"
-      echo -e "\e[31mPlease consider switching to the stable or nightly branches to ensure that you receive updates.\e[0m"
-      echo -e "\e[31mTrying to get updates of your branch: $BRANCH\e[0m"
-      
+      echo -e "\e[31mPlease consider switching to the stable or nightly branches to ensure that you receive updates.\e[0m"      
       echo -e "\e[31mIf you switch your mailcow now without checking the commit diff you´ll probably break things.\e[0m"
       sleep 2
-      echo -e "\e[33mIf you continue now you´ll switch the builds from unsafe to stable!.\e[0m"
+      echo -e "\e[33mIf you continue now you´ll switch the builds to stable!.\e[0m"
     fi
 
     read -r -p "Do you want to make a backup first before you downgrade your mailcow installation to the stable updates? [Y/n] " responsebackup
@@ -708,7 +706,7 @@ elif [[(${BUILD} == "nightly")]]; then
     echo -e "\e[33mWe highly advise you to do a Backup of your current running mailcow installation.\e[0m"
     echo
     sleep 2
-    echo -e "\e[33mIf you continue now you´ll switch the builds from stable to nightly!\e[0m"
+    echo -e "\e[33mIf you continue now you´ll switch the builds to nightly!\e[0m"
     read -r -p "Do you want to make a backup first before you upgrade your mailcow installation to the nightly updates? [Y/n] " responsebackup
     if [[ ! "${responsebackup}" =~ ^([yY][eE][sS]|[yY])+$ ]]; then
       echo -e "\e[33mAlright continuing with the upgrade process. All current staged commits will be stashed and the branch will be switched to $BRANCH\e[0m"
