@@ -4,6 +4,7 @@
 !/**/.gitkeep
 *.iml
 .idea
+.mcbuild
 .vscode/*
 data/assets/ssl-example/*
 data/assets/ssl/*
