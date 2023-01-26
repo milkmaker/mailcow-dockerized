@@ -7,7 +7,8 @@ permissions: {}
 jobs:
   is_not_staging:
     runs-on: ubuntu-latest
-    if: github.event.pull_request.base.ref != 'staging' #check if the target branch is not staging
+    #check if the target branch is not staging
+    if: github.event.pull_request.base.ref != 'staging' && github.event.pull_request.user.login != milkmaker || maguccc
     steps:
       - name: Send message
         uses: thollander/actions-comment-pull-request@v2.3.1
